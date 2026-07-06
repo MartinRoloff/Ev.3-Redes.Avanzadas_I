@@ -1,0 +1,19 @@
+---
+- name: Configurar Enrutamiento OSPF
+  hosts: routers
+  gather_facts: false
+  become: yes
+  tasks:
+    - name: Habilitar OSPF 1 y declarar redes
+      cisco.ios.ios_config:
+        parents: router ospf 1
+        lines:
+          # Anuncia todas las redes 10.1.x.x (Enlaces punto a punto)
+          - network 10.1.0.0 0.0.255.255 area 0
+          # Anuncia la red LAN del switch central
+          - network 192.168.1.0 0.0.0.255 area 0
+          # Anuncia las Loopbacks de los 3 routers
+          - network 1.1.1.1 0.0.0.0 area 0
+          - network 2.2.2.2 0.0.0.0 area 0
+          - network 3.3.3.3 0.0.0.0 area 0
+        save_when: modified

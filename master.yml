@@ -1,0 +1,7 @@
+--- 
+- name: Despliegue Maestro de Red
+  hosts: routers
+  gather_facts: false
+  become: yes
+  roles:
+    - vpn_router

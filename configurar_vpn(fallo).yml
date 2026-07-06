@@ -1,0 +1,60 @@
+---
+- name: Configurar VPN IpSec y Túneles GRE Full-Mesh
+  hosts: routers
+  gather_facts: false
+  become: yes
+  tasks:
+    - name: 1. Configurar Seguridad Global (ISAKMP y Transform Set)
+      cisco.ios.ios_config:
+        lines:
+          - crypto isakmp policy 10
+          - encr aes
+          - hash sha
+          - authentication pre-share
+          - group 2
+          - exit
+          - crypto isakmp key {{ vpn_psk }} address 0.0.0.0
+          - crypto ipsec transform-set TS esp-aes esp-sha-hmac
+          - mode transport
+          - exit
+          - crypto ipsec profile PERFIL_VPN
+          - set transform-set TS
+        save_when: modified
+    - name: 2. Configurar Túneles GRE en R1
+      cisco.ios.ios_config:
+       parents: interface {{ item.name }}
+       lines: 
+         - ip address {{ item.ip }} {{ item.mask }}
+         - tunnel source Loopback0
+         - tunnel destination {{ item.dest }}
+         - tunnel protection ipsec profile PERFIL_VPN
+      loop:
+       - { name: 'Tunnel12', ip: '172.16.12.1', mask: '255.255.255.252', dest: '2.2.2.2' }
+       - { name: 'Tunnel13', ip: '172.16.13.1', mask: '255.255.255.252', dest: '3.3.3.3' }
+      when: inventory_hostname == 'R1'
+ 
+    - name: 3. Configurar Túneles GRE en R2
+      cisco.ios.ios_config:
+        parents: interface {{ item.name }}
+        lines:
+          - ip address {{ item.ip }} {{ item.mask }}
+          - tunnel source Loopback0
+          - tunnel destination {{ item.dest }}
+          - tunnel protection ipsec profile PERFIL_VPN
+      loop:
+        - { name: 'Tunnel12', ip: '172.16.12.2', mask: '255.255.255.252', dest: '1.1.1.1' }
+        - { name: 'Tunnel23', ip: '172.16.23.1', mask: '255.255.255.252', dest: '3.3.3.3' }
+      when: inventory_hostname == 'R2'
+
+    - name: 4. Configurar Túneles GRE en R3
+      cisco.ios.ios_config:
+        parents: interface {{ item.name }}
+        lines:
+          - ip address {{ item.ip }} {{ item.mask }}
+          - tunnel source Loopback0
+          - tunnel destination {{ item.dest }}
+          - tunnel protection ipsec profile PERFIL_VPN
+      loop:
+        - { name: 'Tunnel13', ip: '172.16.13.2', mask: '255.255.255.252', dest: '1.1.1.1' }
+        - { name: 'Tunnel23', ip: '172.16.23.2', mask: '255.255.255.252', dest: '2.2.2.2' }
+      when: inventory_hostname == 'R3'

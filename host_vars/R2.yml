@@ -1,0 +1,10 @@
+interfaces:
+  - name: GigabitEthernet0/1
+    ip: 10.1.12.2
+    mask: 255.255.255.252
+  - name: GigabitEthernet0/2
+    ip: 10.1.23.1
+    mask: 255.255.255.252
+  - name: Loopback0
+    ip: 2.2.2.2
+    mask: 255.255.255.255

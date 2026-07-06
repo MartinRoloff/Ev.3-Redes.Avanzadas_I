@@ -1,0 +1,73 @@
+---
+- name: Intentar configurar la VPN completa
+  block:
+    - name: 1.1 Configurar ISAKMP Policy
+      cisco.ios.ios_config:
+        parents: crypto isakmp policy 10
+        lines:
+          - encr aes
+          - hash sha
+          - authentication pre-share
+          - group 2
+    - name: 1.2 Configurar ISAKMP Key (con Ansible Vault)
+      cisco.ios.ios_config:
+        lines:
+           - crypto isakmp key {{ vpn_psk }} address 0.0.0.0
+
+    - name: 1.3 Configurar Trasform Set
+      cisco.ios.ios_config:
+        parents: crypto ipsec transform-set TS esp-aes esp-sha-hmac
+        lines:
+          - mode transport
+
+    - name: 1.4 Configurar Perfil VPN
+      cisco.ios.ios_config:
+        parents: crypto ipsec profile PERFIL_VPN
+        lines:
+          - set transform-set TS
+        save_when: modified
+
+    - name: 2. Configurar Tuneles GRE en R1
+      cisco.ios.ios_config:
+        parents: interface {{ item.name }}
+        lines:
+          - ip address {{ item.ip }} {{ item.mask }}
+          - tunnel source Loopback0
+          - tunnel destination {{ item.dest }}
+          - tunnel protection ipsec profile PERFIL_VPN
+      loop:
+        - { name: 'Tunnel12', ip: '172.16.12.1', mask: '255.255.255.252', dest: '2.2.2.2' }
+        - { name: 'Tunnel13', ip: '172.16.13.1', mask: '255.255.255.252', dest: '3.3.3.3' }
+      when: inventory_hostname == 'R1'
+
+    - name: 3. Configurar Tuneles GRE en R2
+      cisco.ios.ios_config:
+        parents: interface {{ item.name }}
+        lines:
+          - ip address {{ item.ip }} {{ item.mask }}
+          - tunnel source Loopback0
+          - tunnel destination {{ item.dest }}
+          - tunnel protection ipsec profile PERFIL_VPN
+      loop:
+          - { name: 'Tunnel12', ip: '172.16.12.2', mask: '255.255.255.252', dest: '1.1.1.1' }
+          - { name: 'Tunnel23', ip: '172.16.23.1', mask: '255.255.255.252', dest: '3.3.3.3' }
+      when: inventory_hostname == 'R2'
+     
+    - name: 4. Configurar Tuneles GRE en R3
+      cisco.ios.ios_config:
+        parents: interface {{ item.name }} 
+        lines:          
+          - ip address {{ item.ip }} {{item.mask }}
+          - tunnel source Loopback0
+          - tunnel destination {{ item.dest }}
+          - tunnel protection ipsec profile PERFIL_VPN
+      loop:
+          - { name: 'Tunnel13', ip: '172.16.13.2', mask: '255.255.255.252', dest: '1.1.1.1' }
+          - { name: 'Tunnel23', ip: '172.16.23.2', mask: '255.255.255.252', dest: '2.2.2.2' }
+      when: inventory_hostname == 'R3'
+  rescue:
+    - name: Mostrar mensaje si algo falla
+      debug:
+        msg: "CRITICO: Fallo la configuracion de la VPN en {{ inventory_hostname }}." 
+
+      
