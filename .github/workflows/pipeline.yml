@@ -1,0 +1,33 @@
+name: CI/CD Despliegue de Red Automatico
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test_and_deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Descargar el codigo desde Github
+        uses: actions/checkout@v3
+
+      - name: Fase de Pruebas (Syntax Check)
+        run: |
+          ansible-playbook --syntax-check master.yml
+
+      - name: Fase dde Simulacro (Dry Run / Check)
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD}}
+        run: |
+          echo "$ANSIBLE_VAULT_PASSWORD" > vault_pass.txt
+          ansible-playbook -i inventory master.yml --vault-password-file vault_pass.txt --check
+          rm vault_pass.txt
+      - name: Fase de Despliegue Real (Deploy)
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
+        run: |
+          echo "$ANSIBLE_VAULT_PASSWORD" > vault_pass.txt
+          ansible-playbook -i inventory master.yml --vault-password-file vault_pass.txt
+          rm vault_pass.txt
