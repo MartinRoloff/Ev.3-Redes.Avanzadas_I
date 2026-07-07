@@ -65,6 +65,16 @@
           - { name: 'Tunnel13', ip: '172.16.13.2', mask: '255.255.255.252', dest: '1.1.1.1' }
           - { name: 'Tunnel23', ip: '172.16.23.2', mask: '255.255.255.252', dest: '2.2.2.2' }
       when: inventory_hostname == 'R3'
+
+    - name: Configurar mensaje de bienvenida (Banner MOTD)
+      cisco.ios.ios_banner:
+        banner: motd
+        text:
+          ==================================================================
+          =                 TRABAJOS DE REDES AVANZADAS I                  =
+          ==================================================================
+        state: present
+
   rescue:
     - name: Mostrar mensaje si algo falla
       debug:

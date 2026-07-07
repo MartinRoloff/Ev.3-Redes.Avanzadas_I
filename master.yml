@@ -1,4 +1,7 @@
 --- 
+- import_playbook: configurar_interfaces.yml
+- import_playbook: configurar_ospf.yml
+
 - name: Despliegue Maestro de Red
   hosts: routers
   gather_facts: false
