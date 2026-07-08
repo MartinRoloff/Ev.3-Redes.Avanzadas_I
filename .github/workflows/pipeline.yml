@@ -22,12 +22,12 @@ jobs:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD}}
         run: |
           echo "$ANSIBLE_VAULT_PASSWORD" > vault_pass.txt
-          ansible-playbook -i inventory master.yml --vault-password-file vault_pass.txt --check
+          ansible-playbook -i inventory/hosts.ini master.yml --vault-password-file vault_pass.txt --check
           rm vault_pass.txt
       - name: Fase de Despliegue Real (Deploy)
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
         run: |
           echo "$ANSIBLE_VAULT_PASSWORD" > vault_pass.txt
-          ansible-playbook -i inventory master.yml --vault-password-file vault_pass.txt
+          ansible-playbook -i inventory/hosts.ini master.yml --vault-password-file vault_pass.txt
           rm vault_pass.txt
