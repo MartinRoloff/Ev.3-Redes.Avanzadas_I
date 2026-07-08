@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Descargar el codigo desde Github
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fase de Pruebas (Syntax Check)
         run: |
