@@ -42,11 +42,9 @@ A continuación, se presentan las pruebas técnicas de la correcta operación de
 
 ### 1. Enrutamiento OSPF y Adyacencias
 Los routers alcanzan el estado `FULL` y aprenden las redes remotas automáticamente.
-> *[NOTA PARA MARTÍN: Arrastra y suelta aquí la imagen donde demuestras el `show ip ospf neighbor` y `show ip route ospf`]*
-
-### 2. Encriptación de Tráfico (IPsec sobre GRE)
-Prueba de tráfico forzado a través de la interfaz Tunnel12 (GRE). Los contadores de encriptación y encapsulación aumentan, demostrando que la VPN protege los datos de extremo a extremo.
-> *[NOTA PARA MARTÍN: Arrastra y suelta aquí la imagen final del `show crypto ipsec sa` con los contadores en 100]*
+**<img width="723" height="112" alt="image" src="https://github.com/user-attachments/assets/f4d899dd-395a-43f1-9ef9-6c99e523edfb" />
+**
+<img width="727" height="346" alt="image" src="https://github.com/user-attachments/assets/8ab5b53d-fdf9-44fb-9714-80fd0a8bed4b" />
 
 ### 🎥 Demostración en Video
 En el siguiente enlace se encuentra el recorrido completo por la topología y la comprobación de tráfico encriptado en tiempo real:
